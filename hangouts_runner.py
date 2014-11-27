@@ -42,13 +42,23 @@ def wait_until_time(time, minutes_delta=0):
 
 
 def handle_hangout(
-        email, password, event_url, start_time, end_time, attendees):
+        email, password, event_url, start_time, end_time, attendees=None):
     logger.info('Initializing hangout handler for %s HoA event' % event_url)
     hangout = Hangouts()
 
     logger.info('Logging in as %s' % email)
     hangout.login(email, password)
     logger.info('Logged in')
+
+    if attendees is None:
+        # getting attendees list from event page
+        logger.info('Getting attendees list from event page')
+        hangout.browser.get(event_url)
+        users_nodes = hangout.browser.css(
+            'a[href^="./"]', eager=True, timeout=60)
+        users = (i.text for i in users_nodes if i.text)
+        attendees = tuple(set(users))
+        logger.info('Got %s attendees' % len(attendees))
 
     # staring and inviting the people
     logger.info('Starting Hangout On Air')
@@ -96,7 +106,8 @@ def main():
         event_url=on_air_options['event_url'],
         start_time=on_air_options['start_time'],
         end_time=on_air_options['end_time'],
-        attendees=on_air_options['attendees'])
+        attendees=on_air_options['attendees'],
+    )
 
 
 if __name__ == '__main__':

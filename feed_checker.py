@@ -27,9 +27,10 @@ def get_upcomming_events_from_google_ical_file(ical_path):
              created=event['CREATED'].dt.isoformat(),
              uid=str(event['UID']),
              # XXX: can't find a way to get event attendees list
-             attendees=[str(email)[7:] for email in event['ATTENDEE']]
-                       if isinstance(event['ATTENDEE'], list) else
-                       [str(event['ATTENDEE'])[7:]],
+             # attendees=[str(email)[7:] for email in event['ATTENDEE']]
+             #           if isinstance(event['ATTENDEE'], list) else
+             #           [str(event['ATTENDEE'])[7:]],
+             attendees=None,
              description=str(event['DESCRIPTION']),
              location=str(event['LOCATION']),
              summary=str(event['SUMMARY']),)
