@@ -1,6 +1,4 @@
 """
-THIS SCRIPT SHOULD BE LUNCHED 30 MINUTES BEFRE THE ON AIR MITTING START
-
 What it does:
     * About ~30 minutes before each event starts, start up the Hangout and
       invite the people requested.
@@ -8,7 +6,7 @@ What it does:
     * At ~1 hour after each event shut downs the hangout.
 
 Usage:
-    hangouts_runner.py <credentials_path> <event_details_path>
+    hangouts_runner.py <credentials_path> <events_list_path>
 
 """
 
@@ -17,6 +15,7 @@ from docopt import docopt
 from yaml import load
 from hangout_api import Hangouts
 import arrow
+from operator import itemgetter
 
 import os.path
 here = os.path.abspath(os.path.dirname(__file__))
@@ -76,10 +75,21 @@ def handle_hangout(
     logger.info('Exiting')
 
 
+def get_event_to_start(events):
+    events = events['upcoming_events']
+    events.sort(key=itemgetter('start_time'))
+    if arrow.get(events[0]['start_time']).replace(minutes=-30) <= arrow.utcnow():
+        return events[0]
+
+
 def main():
     arguments = docopt(__doc__)
     credentials = load(open(arguments['<credentials_path>'], 'r').read())
-    on_air_options = load(open(arguments['<event_details_path>'], 'r').read())
+    events = load(open(arguments['<events_list_path>'], 'r').read())
+    on_air_options = get_event_to_start(events)
+    if on_air_options is None:
+        logger.info('No events to start')
+        return
     handle_hangout(
         email=credentials['email'],
         password=credentials['password'],

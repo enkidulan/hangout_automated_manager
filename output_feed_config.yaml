@@ -1,0 +1,17 @@
+feed_output_file: output.rss
+feed_info:
+    title: Feed title
+    link: Feed link
+    description: Feed description
+item_fileds_mapping:
+    title: summary
+    link: event_url
+    description:
+    - description
+    - start_time
+    - end_time
+    - location
+    guid: uid
+    pubDate: last_modified
+
+
